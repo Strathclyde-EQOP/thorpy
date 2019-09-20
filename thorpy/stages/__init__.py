@@ -441,7 +441,9 @@ class GenericStage:
         if self.status_homed and not force:
             return True
         
-        while not self.status_homed:
+        self._port.send_message(MGMSG_MOT_MOVE_HOME(chan_ident = self._chan_ident))
+        time.sleep(1)
+        while self.position != 0:
             if not self.status_in_motion_forward and not self.status_in_motion_reverse:
                 self._port.send_message(MGMSG_MOT_MOVE_HOME(chan_ident = self._chan_ident))
             time.sleep(1)
