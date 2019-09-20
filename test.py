@@ -7,7 +7,7 @@ if __name__ == '__main__':
     print(stages)
     s = stages[0]
     
-    s.home()
+    s.home(force = True)
     
     s.print_state()
     
