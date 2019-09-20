@@ -234,7 +234,7 @@ class GenericStage:
     @property
     def velocity(self):
         self._wait_for_properties(('_state_velocity', ), timeout = 3, message = MGMSG_MOT_REQ_DCSTATUSUPDATE(chan_ident = self._chan_ident))
-        return self._state_velocity / (self._EncCnt * self._T)  #Dropped the 65536 factor, which resulted in false results
+        return self._state_velocity / (self._EncCnt * 53.68)
 
     @property
     def status_forward_hardware_limit_switch_active(self):
@@ -306,17 +306,17 @@ class GenericStage:
     @property
     def min_velocity(self):
         self._wait_for_properties(('_state_min_velocity', ), timeout = 3, message = MGMSG_MOT_REQ_VELPARAMS(chan_ident = self._chan_ident))
-        return self._state_min_velocity / (self._EncCnt * self._T * 65536)
+        return self._state_min_velocity / (self._EncCnt * 53.68)
     
     @property
     def max_velocity(self):
         self._wait_for_properties(('_state_max_velocity', ), timeout = 3, message = MGMSG_MOT_REQ_VELPARAMS(chan_ident = self._chan_ident))
-        return self._state_max_velocity / (self._EncCnt * self._T * 65536)
+        return self._state_max_velocity / (self._EncCnt * 53.68)
     
     @property
     def acceleration(self):
         self._wait_for_properties(('_state_acceleration', ), timeout = 3, message = MGMSG_MOT_REQ_VELPARAMS(chan_ident = self._chan_ident))
-        return self._state_acceleration / (self._EncCnt * (self._T ** 2) * 65536)
+        return self._state_acceleration / (self._EncCnt / 90.9)
     
     @min_velocity.setter
     def min_velocity(self, new_value):
@@ -333,9 +333,9 @@ class GenericStage:
     def _set_velparams(self, min_velocity, max_velocity, acceleration):
         msg = MGMSG_MOT_SET_VELPARAMS(
             chan_ident = self._chan_ident,
-            min_velocity = int(min_velocity *(self._EncCnt * self._T * 65536)),
-            max_velocity = int(max_velocity *(self._EncCnt * self._T * 65536)),
-            acceleration = int(acceleration *(self._EncCnt * (self._T ** 2) * 65536)),
+            min_velocity = int(min_velocity *(self._EncCnt * 53.68)),
+            max_velocity = int(max_velocity *(self._EncCnt * 53.68)),
+            acceleration = int(acceleration *(self._EncCnt / 90.9)),
         )
         self._port.send_message(msg)
         #Invalidate current values
@@ -349,7 +349,7 @@ class GenericStage:
     @property
     def home_velocity(self):
         self._wait_for_properties(('_state_home_velocity', ), timeout = 3, message = MGMSG_MOT_REQ_HOMEPARAMS(chan_ident = self._chan_ident))
-        return self._state_home_velocity / (self._EncCnt * self._T * 65536)
+        return self._state_home_velocity / (self._EncCnt * 53.68)
     
     @home_velocity.setter
     def home_velocity(self, new_value):
@@ -373,7 +373,7 @@ class GenericStage:
     def _set_homeparams(self, home_velocity, home_direction, home_limit_switch, home_offset_distance):
         msg = MGMSG_MOT_SET_HOMEPARAMS( 
             chan_ident = self._chan_ident,
-            home_velocity = int(home_velocity *(self._EncCnt * self._T * 65536)),
+            home_velocity = int(home_velocity *(self._EncCnt * 53.68)),
             home_direction = home_direction,
             limit_switch = home_limit_switch,
             offset_distance = int(home_offset_distance*self._EncCnt)
@@ -389,11 +389,7 @@ class GenericStage:
     #Conversion factors
     @property
     def _EncCnt(self):
-        return self._conf_steps_per_rev * self._conf_gearbox_ratio / self._conf_pitch
-    
-    @property
-    def _T(self):
-        return 2048 / 6e6
+        return self._conf_steps_per_rev * self._conf_gearbox_ratio / self._conf_pitch * 2048
     
     @property
     def units(self):
