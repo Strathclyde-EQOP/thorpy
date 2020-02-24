@@ -523,6 +523,24 @@ class MGMSG_MOT_GET_STATUSUPDATE(Message):
     parameters = [('chan_ident', 'H'), ('position', 'i'), ('enc_count', 'I'), ('status_bits', 'I')]
 
 
+class MGMSG_MOT_GET_STATUSUPDATE_3_0_9(MGMSG_MOT_GET_STATUSUPDATE):
+    """
+        This message is returned when a status update is requested for the
+        specified motor channel. This request can be used instead of
+        enabling regular updates as described above.
+        Seen on a BSC201 with 3.0.9 firmware.
+
+        :param chan_ident: channel number (0x01, 0x02)
+        :type chan_ident: int
+        - position
+        - enc_count
+        - status_bits
+        - All remaining bytes are for future use and should be ignored
+    """
+    parameters = [('chan_ident', 'H'), ('position', 'i'), ('enc_count', 'I'), ('status_bits', 'I'),
+                  ('chan_ident2', 'H'), ('future0', 'I'), ('future1', 'I'), ('future2', 'I')]
+
+
 class MGMSG_MOT_GET_TRIGGER(Message):
     """
         See :class:`MGMSG_MOT_SET_TRIGGER`.
