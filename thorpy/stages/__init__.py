@@ -181,6 +181,17 @@ class GenericStage:
         self._state_home_direction = None
         self._state_home_limit_switch = None
         self._state_home_offset_distance = None
+        #POWERPARAMS
+        self._state_rest_power = None
+        self._state_move_power = None
+        #GENMOVEPARAMS
+        self._state_backlash_dist = None
+        #LIMSWITCHPARAMS
+        self._state_cw_hard_limit = None
+        self._state_ccw_hard_limit = None
+        self._state_cw_soft_limit = None
+        self._state_ccw_soft_limit = None
+        self._state_software_limit_mode = None
         
         
     def __del__(self):
@@ -215,6 +226,23 @@ class GenericStage:
             self._state_home_limit_switch = msg['limit_switch']
             self._state_home_velocity = msg['home_velocity']
             self._state_home_offset_distance = msg['offset_distance']
+            return True
+
+        if isinstance(msg, MGMSG_MOT_GET_POWERPARAMS):
+            self._state_rest_power = msg['rest_factor']
+            self._state_move_power = msg['move_factor']
+            return True
+
+        if isinstance(msg, MGMSG_MOT_GET_GENMOVEPARAMS):
+            self._state_backlash_dist = msg['backlash_distance']
+            return True
+
+        if isinstance(msg, MGMSG_MOT_GET_LIMSWITCHPARAMS):
+            self._state_cw_hard_limit = msg['cw_hard_limit']
+            self._state_ccw_hard_limit = msg['ccw_hard_limit']
+            self._state_cw_soft_limit = msg['cw_soft_limit']
+            self._state_ccw_soft_limit = msg['ccw_soft_limit']
+            self._state_software_limit_mode = msg['software_limit_mode']
             return True
             
         
@@ -391,7 +419,122 @@ class GenericStage:
         self._state_home_limit_switch = None
         self._state_home_offset_distance = None
 
+
+    #POWERPARAMS
+
+    @property
+    def rest_power(self):
+        self._wait_for_properties(('_state_rest_power', ), timeout = 3, message = MGMSG_MOT_REQ_POWERPARAMS(chan_ident = self._chan_ident))
+        return self._state_rest_power
+
+    @rest_power.setter
+    def rest_power(self, new_value):
+        self._set_powerparams(int(new_value), self.move_power)
+
+    @property
+    def move_power(self):
+        self._wait_for_properties(('_state_move_power', ), timeout = 3, message = MGMSG_MOT_REQ_POWERPARAMS(chan_ident = self._chan_ident))
+        return self._state_move_power
+
+    @move_power.setter
+    def move_power(self, new_value):
+        self._set_powerparams(self.rest_power, int(new_value))
+
+    def _set_powerparams(self, rest_power, move_power):
+        msg = MGMSG_MOT_SET_POWERPARAMS(
+            chan_ident = self._chan_ident,
+            rest_factor = rest_power,
+            move_factor = move_power
+        )
+        self._port.send_message(msg)
+        #Invalidate current values
+        self._state_rest_power = None
+        self._state_move_power = None
+
+
+    #GENMOVEPARAMS
+
+    @property
+    def backlash_dist(self):
+        self._wait_for_properties(('_state_backlash_dist', ), timeout = 3, message = MGMSG_MOT_REQ_GENMOVEPARAMS(chan_ident = self._chan_ident))
+        return self._state_backlash_dist
+
+    @backlash_dist.setter
+    def backlash_dist(self, new_value):
+        msg = MGMSG_MOT_SET_GENMOVEPARAMS(
+            chan_ident = self._chan_ident,
+            backlash_distance = int(new_value)
+        )
+        self._port.send_message(msg)
+        #Invalidate current value
+        self._state_backlash_dist = None
+
+
+    #LIMSWITCHPARAMS
+
+    @property
+    def cw_hard_limit(self):
+        self._wait_for_properties(('_state_cw_hard_limit', ), timeout = 3, message = MGMSG_MOT_REQ_LIMSWITCHPARAMS(chan_ident = self._chan_ident))
+        return self._state_cw_hard_limit
+
+    @cw_hard_limit.setter
+    def cw_hard_limit(self, new_value):
+        self._set_limswitchparams(int(new_value), self.ccw_hard_limit, self.cw_soft_limit, self.ccw_soft_limit, self.software_limit_mode)
+
+    @property
+    def ccw_hard_limit(self):
+        self._wait_for_properties(('_state_ccw_hard_limit', ), timeout = 3, message = MGMSG_MOT_REQ_LIMSWITCHPARAMS(chan_ident = self._chan_ident))
+        return self._state_ccw_hard_limit
+
+    @ccw_hard_limit.setter
+    def ccw_hard_limit(self, new_value):
+        self._set_limswitchparams(self.cw_hard_limit, int(new_value), self.cw_soft_limit, self.ccw_soft_limit, self.software_limit_mode)
+
+    @property
+    def cw_soft_limit(self):
+        self._wait_for_properties(('_state_cw_soft_limit', ), timeout = 3, message = MGMSG_MOT_REQ_LIMSWITCHPARAMS(chan_ident = self._chan_ident))
+        return self._state_cw_soft_limit
+
+    @cw_soft_limit.setter
+    def cw_soft_limit(self, new_value):
+        self._set_limswitchparams(self.cw_hard_limit, self.ccw_hard_limit, int(new_value), self.ccw_soft_limit, self.software_limit_mode)
+
+    @property
+    def ccw_soft_limit(self):
+        self._wait_for_properties(('_state_ccw_soft_limit', ), timeout = 3, message = MGMSG_MOT_REQ_LIMSWITCHPARAMS(chan_ident = self._chan_ident))
+        return self._state_ccw_soft_limit
+
+    @ccw_soft_limit.setter
+    def ccw_soft_limit(self, new_value):
+        self._set_limswitchparams(self.cw_hard_limit, self.ccw_hard_limit, self.cw_soft_limit, int(new_value), self.software_limit_mode)
+
+    @property
+    def software_limit_mode(self):
+        self._wait_for_properties(('_state_software_limit_mode', ), timeout = 3, message = MGMSG_MOT_REQ_LIMSWITCHPARAMS(chan_ident = self._chan_ident))
+        return self._state_software_limit_mode
+
+    @software_limit_mode.setter
+    def software_limit_mode(self, new_value):
+        self._set_limswitchparams(self.cw_hard_limit, self.ccw_hard_limit, self.cw_soft_limit, self.ccw_soft_limit, int(new_value))
+
+    def _set_limswitchparams(self, cw_hard_limit, ccw_hard_limit, cw_soft_limit, ccw_soft_limit, software_limit_mode):
+        msg = MGMSG_MOT_SET_LIMSWITCHPARAMS(
+            chan_ident = self._chan_ident,
+            cw_hard_limit = cw_hard_limit,
+            ccw_hard_limit = ccw_hard_limit,
+            cw_soft_limit = cw_soft_limit,
+            ccw_soft_limit = ccw_soft_limit,
+            software_limit_mode = software_limit_mode
+        )
+        self._port.send_message(msg)
+        #Invalidate current values
+        self._state_cw_hard_limit = None
+        self._state_ccw_hard_limit = None
+        self._state_cw_soft_limit = None
+        self._state_ccw_soft_limit = None
+        self._state_software_limit_mode = None
     
+
     #Conversion factors
     @property
     def _EncCnt(self):
