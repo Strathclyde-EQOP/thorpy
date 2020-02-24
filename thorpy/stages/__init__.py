@@ -372,6 +372,10 @@ class GenericStage:
         self._wait_for_properties(('_state_home_offset_distance', ), timeout = 3, message = MGMSG_MOT_REQ_HOMEPARAMS(chan_ident = self._chan_ident))
         return self._state_home_offset_distance / self._EncCnt
     
+    @home_offset_distance.setter
+    def home_offset_distance(self, new_value):
+        self._set_homeparams(self.home_velocity, self.home_direction, self.home_limit_switch, float(new_value))
+
     def _set_homeparams(self, home_velocity, home_direction, home_limit_switch, home_offset_distance):
         msg = MGMSG_MOT_SET_HOMEPARAMS( 
             chan_ident = self._chan_ident,
