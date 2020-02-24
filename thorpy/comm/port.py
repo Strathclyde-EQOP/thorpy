@@ -5,6 +5,8 @@ import time
 import queue
 import weakref
 
+from ..message import MGMSG_HW_YES_FLASH_PROGRAMMING, MGMSG_MOT_GET_STATUSUPDATE
+
 class Port:
     #List to make "quasi-singletons"
     static_port_list = weakref.WeakValueDictionary()
@@ -84,7 +86,7 @@ class Port:
             
     def send_message(self, msg):
         with self._lock:
-            if self._debug:
+            if self._debug and not isinstance(msg, MGMSG_HW_YES_FLASH_PROGRAMMING):
                 print('> ', msg)
             self._serial.write(bytes(msg))
             
@@ -155,7 +157,7 @@ class Port:
             
             self._buffer = self._buffer[len(msg):]
             
-            if self._debug:
+            if self._debug and not isinstance(msg, MGMSG_MOT_GET_STATUSUPDATE):
                 print('< ', msg)
             return msg
         
