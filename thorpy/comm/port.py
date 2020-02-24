@@ -28,12 +28,12 @@ class Port:
         # device does not know what data has reached us of the FTDI RS232 converter.
         # Similarly, we do not know the state of the controller input buffer.
         # Be toggling the RTS pin, we let the controller know that it should flush its caches.
-        self._serial.setRTS(1)
+        self._serial.rts = False
         time.sleep(0.05)
         self._serial.reset_input_buffer()
         self._serial.reset_output_buffer()
         time.sleep(0.05)
-        self._serial.setRTS(0)
+        self._serial.rts = True
 
         self._port = port
         self._debug = False
