@@ -64,7 +64,7 @@ class MGMSG_HW_GET_INFO(Message):
     """
     id = 0x6
     is_long_cmd = True
-    parameters = [('serial_number', 'I'), ('model_number', '8s'), ('type', 'H'), ('firmware_version', '4s'),
+    parameters = [('serial_number', 'i'), ('model_number', '8s'), ('type', 'H'), ('firmware_version', '4s'),
                   ('notes', '48s'), ('empty_space', '12s'), ('hw_version', 'H'), ('mod_state', 'H'), ('nchs', 'H')]
 
 
