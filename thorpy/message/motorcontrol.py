@@ -221,6 +221,45 @@ class MGMSG_MOT_GET_JOGPARAMS(Message):
                   ('jog_acceleration', 'I'), ('jog_max_velocity', 'I'), ('jog_stop_mode', 'H')]
 
 
+class MGMSG_MOT_GET_KCUBEKSTLOOPPARAMS(Message):
+    """
+        See :class:`MGMSG_MOT_SET_KCUBEKSTLOOPPARAMS`.
+
+        :param chan_ident: channel number (0x01, 0x02)
+        :type chan_ident: int
+        :param loop_mode: sets open (1) or closed (2) loop
+        :type loop_mode: int
+        :param prop: The proportional gain. Together with the Integral and
+            Differential, these terms determine the system response
+            characteristics and accept values in the range 0 to 16777216.
+        :type prop: int
+        :param int: The integral gain. Together with the Proportional and
+            Differential, these terms determine the system response
+            characteristics and accept values in the range 0 to 16777216.
+        :type int: int
+        :param diff: The differential gain. Together with the Proportional and
+            Integral, these terms determine the system response
+            characteristics and accept values in the range 0 to 16777216.
+        :type diff: int
+        :param pid_clip: caps the value of the PID
+            loop to prevent runaway at the output. It accepts values in
+            the range 0 to 16777216. If set to 0 then the output of the
+            PID loop is ignored.
+        :type pid_clip: int
+        :param pid_tol: Value below which the output of PID generator is effectively
+            deemed to be zero to avoid continual cycle about set point
+        :type pid_tol: int
+        :param encoder_const: This is a conversion factor from Encoder counts to
+            microsteps. If set to 0, then no encoder is fitted to the stage
+        :type encoder_const: int
+
+    """
+    id = 0x52b
+    is_long_cmd = True
+    parameters = [('chan_ident', 'H'), ('loop_mode', 'H'), ('prop', 'I'), ('int', 'I'), ('diff', 'I'),
+                  ('pid_clip', 'I'), ('pid_tol', 'I'), ('encoder_const', 'I'), ('unknown0', 'I'), ('unknown1', 'I')]
+
+
 class MGMSG_MOT_GET_LIMSWITCHPARAMS(Message):
     """
         See :class:`MGMSG_MOT_SET_LIMSWITCHPARAMS`.
@@ -897,6 +936,18 @@ class MGMSG_MOT_REQ_JOGPARAMS(Message):
     parameters = [('chan_ident', 'B'), (None, 'B')]
 
 
+class MGMSG_MOT_REQ_KCUBEKSTLOOPPARAMS(Message):
+    """
+        See :class:`MGMSG_MOT_SET_KCUBEKSTLOOPPARAMS`.
+
+        :param chan_ident: channel number (0x01, 0x02)
+        :type chan_ident: int
+
+    """
+    id = 0x52a
+    parameters = [('chan_ident', 'B'), (None, 'B')]
+
+
 class MGMSG_MOT_REQ_LIMSWITCHPARAMS(Message):
     """
         See :class:`MGMSG_MOT_SET_LIMSWITCHPARAMS`.
@@ -1301,6 +1352,53 @@ class MGMSG_MOT_SET_JOGPARAMS(Message):
     is_long_cmd = True
     parameters = [('chan_ident', 'H'), ('jog_mode', 'H'), ('jog_step_size', 'I'), ('jog_min_velocity', 'I'),
                   ('jog_acceleration', 'I'), ('jog_max_velocity', 'I'), ('jog_stop_mode', 'H')]
+
+
+class MGMSG_MOT_SET_KCUBEKSTLOOPPARAMS(Message):
+    """
+        Used to set the position control loop parameters for the specified
+        motor channel.
+        The motion processor within the controller uses a position control
+        loop to determine the motor command output. The purpose of the
+        position loop is to match the actual motor position and the
+        demanded position. This is achieved by comparing the demanded
+        position with the actual position to create a position error, which is
+        then passed through a digital PID‐type filter. The filtered value is the
+        motor command output.
+
+        :param chan_ident: channel number (0x01, 0x02)
+        :type chan_ident: int
+        :param loop_mode: sets open (1) or closed (2) loop
+        :type loop_mode: int
+        :param prop: The proportional gain. Together with the Integral and
+            Differential, these terms determine the system response
+            characteristics and accept values in the range 0 to 16777216.
+        :type prop: int
+        :param int: The integral gain. Together with the Proportional and
+            Differential, these terms determine the system response
+            characteristics and accept values in the range 0 to 16777216.
+        :type int: int
+        :param diff: The differential gain. Together with the Proportional and
+            Integral, these terms determine the system response
+            characteristics and accept values in the range 0 to 16777216.
+        :type diff: int
+        :param pid_clip: caps the value of the PID
+            loop to prevent runaway at the output. It accepts values in
+            the range 0 to 16777216. If set to 0 then the output of the
+            PID loop is ignored.
+        :type pid_clip: int
+        :param pid_tol: Value below which the output of PID generator is effectively
+            deemed to be zero to avoid continual cycle about set point
+        :type pid_tol: int
+        :param encoder_const: This is a conversion factor from Encoder counts to
+            microsteps. If set to 0, then no encoder is fitted to the stage
+        :type encoder_const: int
+
+    """
+    id = 0x529
+    is_long_cmd = True
+    parameters = [('chan_ident', 'H'), ('loop_mode', 'H'), ('prop', 'I'), ('int', 'I'), ('diff', 'I'),
+                  ('pid_clip', 'I'), ('pid_tol', 'I'), ('encoder_const', 'I'), ('unknown0', 'I'), ('unknown1', 'I')]
 
 
 class MGMSG_MOT_SET_LIMSWITCHPARAMS(Message):
