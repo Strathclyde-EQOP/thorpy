@@ -54,6 +54,8 @@ def stage_name_from_get_hw_info(m, sn):
             #This is reverse engineered...
             _print_stage_detection_improve_message(m)
             return 'Z606(B)'
+    elif controller_type in (40, ):
+        return 'HS NanoRotator'
     elif controller_type in (43, 93):
         return 'DRV414'
     elif controller_type in (94, ):
