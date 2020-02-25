@@ -21,6 +21,8 @@ if __name__ == '__main__':
         s.rest_power = s._conf_rest_factor
         s.move_power = s._conf_move_factor
         s._port.send_message(MGMSG_MOT_SET_KCUBEKSTLOOPPARAMS(s._chan_ident, 1, 200000, 1000, 100, 100000000, 200, 0, 0, 0))    # as set by APT
+    else:
+        s._port.send_message(MGMSG_MOT_SET_BUTTONPARAMS(s._chan_ident, 2, 0, 61440000, 2000, 2000))
 
     s.home(force = True)
     
