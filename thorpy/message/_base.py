@@ -135,11 +135,11 @@ class Message:
         return k in self.parameter_names
 
     @classmethod
-    def get_message_class_by_id(cls, message_id):
-        message_classes = list(filter(lambda x: x.id == message_id, Message.__subclasses__()))
-        assert len(message_classes) < 2, 'Multiple classes with id {0} defined'.format(message_id)
+    def get_message_class_by_id_and_length(cls, message_id, length):
+        message_classes = list(filter(lambda x: x.id == message_id and len(x) == length., Message.__subclasses__()))
+        assert len(message_classes) < 2, 'Multiple classes with id {0} and length {1} defined'.format(message_id, length)
         if len(message_classes) < 1:
-            raise KeyError('Unknown message id {0}'.format(message_id))
+            raise KeyError('Unknown message id {0} with length {1}'.format(message_id, length))
         return message_classes[0]
 
     @classmethod
@@ -159,7 +159,7 @@ class Message:
         if len(buffer) < base_package_length + (length if long_message else 0):
             raise IncompleteMessageException()
 
-        msg_cls = Message.get_message_class_by_id(message_id)
+        msg_cls = Message.get_message_class_by_id_and_length(message_id, base_package_length + long_message * length)
         # TODO: Add checks if long message is really a long message
         fields, msg_struct = msg_cls.struct_description
         descr = dict(zip(fields, msg_struct.unpack(buffer)))
