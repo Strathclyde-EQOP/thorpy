@@ -72,7 +72,6 @@ class Message:
     def source(self, source_id):
         if source_id is not None:
             assert isinstance(source_id, int)
-            assert 0 <= source_id <= 0x80
         self._source = source_id
 
     @classproperty
