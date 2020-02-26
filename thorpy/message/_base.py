@@ -98,7 +98,7 @@ class Message:
     def struct_description(cls):
         # On the first call the class wide message Struct is not yet built,
         # after that we may rely on the class wide cache of the Struct.
-        if cls._struct_description is None:
+        if cls._struct_description is None or cls.__name__ != cls._struct_description[2]:
             if not cls.is_long_cmd:
                 full_struct_desc = [('message_id', 'H'), ] + cls.parameters + [('dest', 'B'), ('source', 'B')]
             else:
@@ -106,9 +106,9 @@ class Message:
                                     + cls.parameters)
             names, encodings = zip(*full_struct_desc)
             message_struct = struct.Struct('<' + ''.join(encodings))
-            cls._struct_description = names, message_struct
+            cls._struct_description = names, message_struct, cls.__name__
         else:
-            names, message_struct = cls._struct_description
+            names, message_struct = cls._struct_description[:2]
         return names, message_struct
 
     @property
@@ -136,7 +136,10 @@ class Message:
 
     @classmethod
     def get_message_class_by_id_and_length(cls, message_id, length):
-        message_classes = list(filter(lambda x: x.id == message_id and len(x) == length., Message.__subclasses__()))
+        messages = Message.__subclasses__()
+        for m in messages:
+            messages.extend(m.__subclasses__())
+        message_classes = list(filter(lambda x: x.id == message_id and x.binary_length == length, messages))
         assert len(message_classes) < 2, 'Multiple classes with id {0} and length {1} defined'.format(message_id, length)
         if len(message_classes) < 1:
             raise KeyError('Unknown message id {0} with length {1}'.format(message_id, length))
